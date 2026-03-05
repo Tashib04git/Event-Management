@@ -1,0 +1,48 @@
+{% extends 'events/base.html' %}
+{% block title %}{{ category.name }} - EventMS{% endblock title %}
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'category_list' %}" class="text-sm text-gray-500 hover:text-indigo-600 flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back to Categories
+    </a>
+</div>
+<div class="bg-white rounded-xl shadow-sm p-8 mb-6">
+    <div class="flex items-start justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-teal-500 rounded-xl flex items-center justify-center text-white font-bold text-2xl">
+                {{ category.name|first|upper }}
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ category.name }}</h1>
+                <p class="text-gray-500 mt-1 text-sm">{{ category.description|default:"No description." }}</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'category_update' category.pk %}"
+               class="bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Edit</a>
+            <a href="{% url 'category_delete' category.pk %}"
+               class="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-red-700 transition">Delete</a>
+        </div>
+    </div>
+</div>
+
+<h2 class="text-base font-semibold text-gray-900 mb-4">Events in this category ({{ events.count }})</h2>
+{% if events %}
+<div class="bg-white rounded-xl shadow-sm divide-y divide-gray-100">
+    {% for event in events %}
+    <div class="p-5 flex items-center justify-between hover:bg-gray-50 transition">
+        <div>
+            <h3 class="font-medium text-gray-900 text-sm">
+                <a href="{% url 'event_detail' event.pk %}" class="hover:text-indigo-600">{{ event.name }}</a>
+            </h3>
+            <div class="text-xs text-gray-400 mt-0.5">{{ event.date|date:"M j, Y" }} &middot; {{ event.location }}</div>
+        </div>
+        <span class="text-xs text-indigo-600 font-medium">{{ event.participant_count }} participant{{ event.participant_count|pluralize }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm p-8 text-center text-sm text-gray-400">No events in this category yet.</div>
+{% endif %}
+{% endblock content %}

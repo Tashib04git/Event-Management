@@ -1,0 +1,57 @@
+{% extends 'events/base.html' %}
+{% block title %}Categories - EventMS{% endblock title %}
+{% block content %}
+<header class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Categories</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ categories.count }} categor{{ categories.count|pluralize:"y,ies" }}</p>
+    </div>
+    <a href="{% url 'category_create' %}"
+       class="flex items-center gap-2 bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        New Category
+    </a>
+</header>
+
+{% if categories %}
+<div class="bg-white rounded-xl shadow-sm">
+    <div class="grid grid-cols-4 p-4 border-b border-gray-100 text-xs text-gray-500 font-medium uppercase tracking-wide">
+        <div>Name</div>
+        <div class="col-span-2">Description</div>
+        <div>Actions</div>
+    </div>
+    <div class="divide-y divide-gray-100">
+        {% for category in categories %}
+        <div class="grid grid-cols-4 gap-4 p-4 items-center hover:bg-gray-50 transition">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                    {{ category.name|first|upper }}
+                </div>
+                <div>
+                    <a href="{% url 'category_detail' category.pk %}" class="font-medium text-gray-900 text-sm hover:text-indigo-600">{{ category.name }}</a>
+                    <div class="text-xs text-indigo-600 font-medium">{{ category.event_count }} event{{ category.event_count|pluralize }}</div>
+                </div>
+            </div>
+            <div class="col-span-2 text-sm text-gray-500">{{ category.description|default:"No description."|truncatechars:80 }}</div>
+            <div class="flex items-center gap-2">
+                <a href="{% url 'category_detail' category.pk %}"
+                   class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-xs font-medium">View</a>
+                <a href="{% url 'category_update' category.pk %}"
+                   class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-xs font-medium">Edit</a>
+                <a href="{% url 'category_delete' category.pk %}"
+                   class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-xs font-medium">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm p-12 text-center">
+    <p class="text-gray-500 mb-4">No categories yet.</p>
+    <a href="{% url 'category_create' %}"
+       class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+        Create First Category
+    </a>
+</div>
+{% endif %}
+{% endblock content %}

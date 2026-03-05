@@ -1,0 +1,105 @@
+from django import forms
+from events.models import Event, Participant, Category
+
+
+class StyledFormMixin:
+    """Mixin to apply consistent Tailwind CSS styles to all form fields."""
+
+    default_classes = (
+        "border-2 border-gray-300 w-full p-3 rounded-lg shadow-sm "
+        "focus:outline-none focus:border-rose-500 focus:ring-rose-500"
+    )
+
+    def apply_styled_widgets(self):
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, forms.TextInput):
+                field.widget.attrs.update({
+                    'class': self.default_classes,
+                    'placeholder': f"Enter {field.label.lower()}"
+                })
+            elif isinstance(field.widget, forms.EmailInput):
+                field.widget.attrs.update({
+                    'class': self.default_classes,
+                    'placeholder': f"Enter {field.label.lower()}"
+                })
+            elif isinstance(field.widget, forms.Textarea):
+                field.widget.attrs.update({
+                    'class': f"{self.default_classes} resize-none",
+                    'placeholder': f"Enter {field.label.lower()}",
+                    'rows': 4
+                })
+            elif isinstance(field.widget, forms.DateInput):
+                field.widget.attrs.update({
+                    'class': self.default_classes,
+                    'type': 'date'
+                })
+            elif isinstance(field.widget, forms.TimeInput):
+                field.widget.attrs.update({
+                    'class': self.default_classes,
+                    'type': 'time'
+                })
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({
+                    'class': self.default_classes,
+                })
+            elif isinstance(field.widget, forms.CheckboxSelectMultiple):
+                field.widget.attrs.update({
+                    'class': 'space-y-2'
+                })
+            else:
+                field.widget.attrs.update({
+                    'class': self.default_classes
+                })
+
+
+class CategoryForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widgets()
+
+
+class EventForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = ['name', 'description', 'date', 'time', 'location', 'category']
+        widgets = {
+            'date': forms.DateInput(),
+            'time': forms.TimeInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widgets()
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if len(name) < 3:
+            raise forms.ValidationError("Event name must be at least 3 characters.")
+        return name
+
+
+class ParticipantForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = Participant
+        fields = ['name', 'email', 'events']
+        widgets = {
+            'events': forms.CheckboxSelectMultiple,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widgets()
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        instance = self.instance
+        qs = Participant.objects.filter(email=email)
+        if instance.pk:
+            qs = qs.exclude(pk=instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("A participant with this email already exists.")
+        return email

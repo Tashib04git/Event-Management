@@ -1,0 +1,202 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Dashboard - EventMS{% endblock title %}
+
+{% block content %}
+
+<!-- Header -->
+<header class="flex justify-between items-center mb-8">
+    <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Organizer Dashboard</h1>
+        <p class="text-sm text-gray-500 mt-1">Welcome back! Here's what's happening today.</p>
+    </div>
+</header>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-4 gap-6 mb-8">
+
+    <!-- Total Participants -->
+    <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">TOTAL PARTICIPANTS</h3>
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-3xl font-semibold mb-1">{{ total_participants }}</p>
+                <p class="text-gray-500 text-sm">Across all events</p>
+            </div>
+            <div class="bg-purple-100 p-3 rounded-full">
+                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Events — Clickable -->
+    <a href="?filter=all"
+       class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow block
+              {% if filter_type == 'all' %}ring-2 ring-indigo-500{% endif %}">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">TOTAL EVENTS</h3>
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-3xl font-semibold mb-1">{{ total_events }}</p>
+                <p class="text-gray-500 text-sm">Click to view all</p>
+            </div>
+            <div class="bg-blue-100 p-3 rounded-full">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+    </a>
+
+    <!-- Upcoming Events — Clickable -->
+    <a href="?filter=upcoming"
+       class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow block
+              {% if filter_type == 'upcoming' %}ring-2 ring-green-500{% endif %}">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">UPCOMING EVENTS</h3>
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-3xl font-semibold mb-1">{{ upcoming_events }}</p>
+                <p class="text-gray-500 text-sm">Click to view</p>
+            </div>
+            <div class="bg-green-100 p-3 rounded-full">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+            </div>
+        </div>
+    </a>
+
+    <!-- Past Events — Clickable -->
+    <a href="?filter=past"
+       class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow block
+              {% if filter_type == 'past' %}ring-2 ring-red-500{% endif %}">
+        <h3 class="text-sm font-medium text-gray-500 mb-4">PAST EVENTS</h3>
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-3xl font-semibold mb-1">{{ past_events }}</p>
+                <p class="text-gray-500 text-sm">Click to view</p>
+            </div>
+            <div class="bg-red-100 p-3 rounded-full">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                </svg>
+            </div>
+        </div>
+    </a>
+
+</div>
+
+<!-- Dynamic Event Listing -->
+<div class="bg-white rounded-xl shadow-sm">
+
+    <!-- Table Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-100">
+        <h2 class="text-base font-semibold text-gray-900">{{ section_title }}</h2>
+        <div class="flex gap-2">
+            <a href="?filter=today"
+               class="text-sm px-3 py-1.5 rounded-lg transition
+                      {% if filter_type == 'today' %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">
+                Today
+            </a>
+            <a href="?filter=all"
+               class="text-sm px-3 py-1.5 rounded-lg transition
+                      {% if filter_type == 'all' %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">
+                All
+            </a>
+            <a href="?filter=upcoming"
+               class="text-sm px-3 py-1.5 rounded-lg transition
+                      {% if filter_type == 'upcoming' %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">
+                Upcoming
+            </a>
+            <a href="?filter=past"
+               class="text-sm px-3 py-1.5 rounded-lg transition
+                      {% if filter_type == 'past' %}bg-indigo-600 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">
+                Past
+            </a>
+        </div>
+    </div>
+
+    <!-- Column Headers -->
+    <div class="grid grid-cols-5 p-4 border-b border-gray-100 text-xs text-gray-500 font-medium uppercase tracking-wide">
+        <div>Event Name</div>
+        <div>Category</div>
+        <div>Date & Time</div>
+        <div>Location</div>
+        <div>Participants</div>
+    </div>
+
+    {% if event_list %}
+    <div class="divide-y divide-gray-50">
+        {% for event in event_list %}
+        <div class="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition">
+
+            <!-- Event Name -->
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full
+                    {% if event.date == today %}bg-yellow-400
+                    {% elif event.date > today %}bg-green-400
+                    {% else %}bg-red-400{% endif %}">
+                </div>
+                <a href="{% url 'event_detail' event.pk %}"
+                   class="font-medium text-gray-900 hover:text-indigo-600 transition text-sm truncate">
+                    {{ event.name }}
+                </a>
+            </div>
+
+            <!-- Category -->
+            <div>
+                {% if event.category %}
+                <span class="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium">
+                    {{ event.category.name }}
+                </span>
+                {% else %}
+                <span class="text-gray-400 text-xs">—</span>
+                {% endif %}
+            </div>
+
+            <!-- Date & Time -->
+            <div class="text-sm text-gray-500">
+                {{ event.date|date:"M j, Y" }}<br>
+                <span class="text-xs">{{ event.time|time:"g:i A" }}</span>
+            </div>
+
+            <!-- Location -->
+            <div class="text-sm text-gray-500 truncate">{{ event.location }}</div>
+
+            <!-- Participants -->
+            <div class="flex items-center justify-between">
+                <div class="flex -space-x-2">
+                    {% for participant in event.participants.all|slice:":3" %}
+                    <div class="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs border-2 border-white font-medium">
+                        {{ participant.name|first|upper }}
+                    </div>
+                    {% endfor %}
+                    {% if event.participant_count > 3 %}
+                    <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs border-2 border-white font-medium">
+                        +{{ event.participant_count|add:"-3" }}
+                    </div>
+                    {% endif %}
+                </div>
+                <span class="text-xs text-gray-400 ml-2">{{ event.participant_count }}</span>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-12 text-center">
+        <svg class="w-12 h-12 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <p class="text-gray-500 text-sm">No events found for this view.</p>
+        <a href="{% url 'event_create' %}"
+           class="inline-flex items-center gap-1 mt-3 text-sm text-indigo-600 hover:underline">
+            + Create an Event
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock content %}

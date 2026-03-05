@@ -1,0 +1,160 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Events - EventMS{% endblock title %}
+
+{% block content %}
+
+<header class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Events</h1>
+        <p class="text-sm text-gray-500 mt-1">
+            {{ events.count }} event{{ events.count|pluralize }} found
+            {% if total_participants %}&middot; {{ total_participants }} total participant{{ total_participants|pluralize }}{% endif %}
+        </p>
+    </div>
+    <a href="{% url 'event_create' %}"
+       class="flex items-center gap-2 bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        New Event
+    </a>
+</header>
+
+<!-- Search & Filter Bar -->
+<div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+    <form method="GET" class="flex flex-wrap gap-3 items-end">
+
+        <!-- Search -->
+        <div class="flex-1 min-w-48">
+            <label class="block text-xs font-medium text-gray-500 mb-1">Search</label>
+            <input type="text" name="search" value="{{ search_query }}"
+                   placeholder="Search by name or location..."
+                   class="border-2 border-gray-300 w-full p-2.5 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 text-sm">
+        </div>
+
+        <!-- Category -->
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">Category</label>
+            <select name="category"
+                    class="border-2 border-gray-300 p-2.5 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 text-sm">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.pk }}" {% if selected_category == cat.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Date From -->
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
+            <input type="date" name="date_from" value="{{ date_from }}"
+                   class="border-2 border-gray-300 p-2.5 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 text-sm">
+        </div>
+
+        <!-- Date To -->
+        <div>
+            <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
+            <input type="date" name="date_to" value="{{ date_to }}"
+                   class="border-2 border-gray-300 p-2.5 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 text-sm">
+        </div>
+
+        <button type="submit"
+                class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Filter
+        </button>
+
+        {% if search_query or selected_category or date_from or date_to %}
+        <a href="{% url 'event_list' %}"
+           class="flex items-center gap-1 bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+            Clear
+        </a>
+        {% endif %}
+
+    </form>
+</div>
+
+<!-- Event Table -->
+{% if events %}
+<div class="bg-white rounded-xl shadow-sm">
+    <div class="grid grid-cols-5 p-4 border-b border-gray-100 text-xs text-gray-500 font-medium uppercase tracking-wide">
+        <div>Event</div>
+        <div>Category</div>
+        <div>Date & Time</div>
+        <div>Location</div>
+        <div>Actions</div>
+    </div>
+    <div class="divide-y divide-gray-100">
+        {% for event in events %}
+        <div class="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50 transition">
+
+            <!-- Event -->
+            <div>
+                <a href="{% url 'event_detail' event.pk %}"
+                   class="font-medium text-gray-900 hover:text-indigo-600 transition text-sm">
+                    {{ event.name }}
+                </a>
+                <p class="text-xs text-gray-400 mt-0.5 truncate">{{ event.description|truncatechars:50 }}</p>
+            </div>
+
+            <!-- Category -->
+            <div>
+                {% if event.category %}
+                <span class="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-medium">
+                    {{ event.category.name }}
+                </span>
+                {% else %}
+                <span class="text-gray-400 text-xs">—</span>
+                {% endif %}
+            </div>
+
+            <!-- Date & Time -->
+            <div class="text-sm text-gray-600">
+                {{ event.date|date:"M j, Y" }}
+                <br><span class="text-xs text-gray-400">{{ event.time|time:"g:i A" }}</span>
+            </div>
+
+            <!-- Location -->
+            <div class="text-sm text-gray-600 truncate">{{ event.location }}</div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2">
+                <a href="{% url 'event_detail' event.pk %}"
+                   class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-xs font-medium">
+                    View
+                </a>
+                <a href="{% url 'event_update' event.pk %}"
+                   class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-xs font-medium">
+                    Edit
+                </a>
+                <a href="{% url 'event_delete' event.pk %}"
+                   class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-xs font-medium">
+                    Delete
+                </a>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% else %}
+<div class="bg-white rounded-xl shadow-sm p-12 text-center">
+    <svg class="w-16 h-16 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+    <p class="text-gray-500 text-sm mb-6">Try adjusting your filters or create a new event.</p>
+    <a href="{% url 'event_create' %}"
+       class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+        Create First Event
+    </a>
+</div>
+{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,92 @@
+{% extends 'events/base.html' %}
+{% block title %}Participants - EventMS{% endblock title %}
+{% block content %}
+
+<header class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Participants</h1>
+        <p class="text-sm text-gray-500 mt-1">{{ participants.count }} participant{{ participants.count|pluralize }}</p>
+    </div>
+    <a href="{% url 'participant_create' %}"
+       class="flex items-center gap-2 bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Participant
+    </a>
+</header>
+
+<!-- Search -->
+<div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+    <form method="GET" class="flex gap-3">
+        <input type="text" name="search" value="{{ search }}" placeholder="Search by name or email..."
+               class="border-2 border-gray-300 flex-1 p-2.5 rounded-lg shadow-sm focus:outline-none focus:border-rose-500 text-sm">
+        <button type="submit"
+                class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+            Search
+        </button>
+        {% if search %}
+        <a href="{% url 'participant_list' %}"
+           class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition text-sm font-medium">
+            Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+{% if participants %}
+<div class="bg-white rounded-xl shadow-sm">
+    <div class="grid grid-cols-4 p-4 border-b border-gray-100 text-xs text-gray-500 font-medium uppercase tracking-wide">
+        <div>Name</div>
+        <div>Email</div>
+        <div>Events</div>
+        <div>Actions</div>
+    </div>
+    <div class="divide-y divide-gray-100">
+        {% for participant in participants %}
+        <div class="grid grid-cols-4 gap-4 p-4 items-center hover:bg-gray-50 transition">
+
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {{ participant.name|first|upper }}
+                </div>
+                <span class="font-medium text-gray-900 text-sm">{{ participant.name }}</span>
+            </div>
+
+            <div class="text-sm text-gray-500">{{ participant.email }}</div>
+
+            <div class="flex flex-wrap gap-1">
+                {% for event in participant.events.all|slice:":2" %}
+                <span class="text-xs px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full">{{ event.name|truncatechars:20 }}</span>
+                {% empty %}
+                <span class="text-xs text-gray-400">No events</span>
+                {% endfor %}
+                {% if participant.events.count > 2 %}
+                <span class="text-xs text-gray-400">+{{ participant.events.count|add:"-2" }} more</span>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{% url 'participant_detail' participant.pk %}"
+                   class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-xs font-medium">View</a>
+                <a href="{% url 'participant_update' participant.pk %}"
+                   class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-xs font-medium">Edit</a>
+                <a href="{% url 'participant_delete' participant.pk %}"
+                   class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-xs font-medium">Delete</a>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm p-12 text-center">
+    <p class="text-gray-500 mb-4">No participants found.</p>
+    <a href="{% url 'participant_create' %}"
+       class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium">
+        Add First Participant
+    </a>
+</div>
+{% endif %}
+
+{% endblock content %}
